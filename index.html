@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Torneo A Vite</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --accent-color: #38bdf8;
+      --danger-color: #ef4444;
+      --border-color: #334155;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--accent-color);
+    }
+
+    .input-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: #0f172a;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--accent-color);
+      color: #0f172a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    #players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .player-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .player-card.eliminated {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .player-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .player-lives {
+      font-size: 14px;
+    }
+
+    .status-badge {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .badge-rest { background-color: #f59e0b; color: #000; }
+    .badge-w { background-color: #10b981; color: #fff; }
+    .badge-l { background-color: #ef4444; color: #fff; }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger-color);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .remove-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 4px;
+    }
+
+    .controls-tournament {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #start-btn {
+      background-color: #10b981;
+      color: white;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🏆 Torneo A Vite</h1>
+
+    <!-- Sezione per aggiungere i giocatori -->
+    <div class="input-section">
+      <input type="text" id="player-input" placeholder="Nome del giocatore..." />
+      <button onclick="addPlayer()">Aggiungi</button>
+    </div>
+
+    <div class="info-bar">
+      <span>Partecipanti: <strong id="player-count">0</strong></span>
+    </div>
+
+    <!-- Lista dei giocatori generata dinamicamente -->
+    <div id="players-list"></div>
+
+    <div class="controls-tournament">
+      <button id="start-btn" onclick="toggleTournament()">Inizia Torneo</button>
+    </div>
+  </div>
+
+  <script>
+    // Variabili di stato del torneo
+    let players = [];
+    let tournamentStarted = false;
+    let restingPlayersThisRound = []; // Esempio di array per i riposi
+
+    function addPlayer() {
+      if (tournamentStarted) return;
+      const input = document.getElementById('player-input');
+      const name = input.value.trim();
+      
+      if (!name) return;
+
+      const newPlayer = {
+        id: Date.now(),
+        name: name,
+        lives: 3,         // Partono di default con 3 vite
+        eliminated: false,
+        lastResult: null  // Può essere 'W', 'L' o null
+      };
+
+      players.push(newPlayer);
+      input.value = '';
+      renderPlayers();
+    }
+
+    function removePlayer(id) {
+      if (tournamentStarted) return;
+      players = players.filter(p => p.id !== id);
+      renderPlayers();
+    }
+
+    function toggleTournament() {
+      if (players.length < 2) {
+        alert("Aggiungi almeno 2 giocatori per iniziare!");
+        return;
+      }
+      tournamentStarted = !tournamentStarted;
+      const btn = document.getElementById('start-btn');
+      
+      if (tournamentStarted) {
+        btn.innerText = "Torneo in Corso (Bloccato)";
+        btn.style.backgroundColor = "#ef4444";
+      } else {
+        btn.innerText = "Inizia Torneo";
+        btn.style.backgroundColor = "#10b981";
+      }
+      renderPlayers();
+    }
+
+    function renderPlayers() {
+      const list = document.getElementById('players-list');
+      const playerCount = document.getElementById('player-count');
+      
+      if (playerCount) {
+        playerCount.innerText = players.length;
+      }
+      
+      if (!list) return;
+      list.innerHTML = '';
+
+      players.forEach(p => {
+        const card = document.createElement('div');
+        card.className = `player-card ${p.eliminated ? 'eliminated' : ''}`;
+        
+        const lifeIcons = p.lives > 0 ? '❌ '.repeat(p.lives).trim() : '💀 ELIMINATO';
+        
+        let badgeHtml = '';
+        if (!p.eliminated) {
+          if (typeof restingPlayersThisRound !== 'undefined' && restingPlayersThisRound.some(rp => rp.id === p.id)) {
+            badgeHtml = `<span class="status-badge badge-rest">☕ In Riposo</span>`;
+          } else if (p.lastResult === 'W') {
+            badgeHtml = `<span class="status-badge badge-w">Vincente Uscente</span>`;
+          } else if (p.lastResult === 'L') {
+            badgeHtml = `<span class="status-badge badge-l">Perdente Uscente</span>`;
+          }
+        }
+
+        const removeBtnHtml = !tournamentStarted 
+          ? `<button class="remove-btn" title="Rimuovi" onclick="removePlayer(${p.id})">✖</button>` 
+          : '';
+
+        card.innerHTML = `
+          <div class="player-info">
+            <span class="player-name">${p.name}</span>
+            <span class="player-lives">${lifeIcons}</span>
+            ${badgeHtml}
+          </div>
+          ${removeBtnHtml}
+        `;
+
+        list.appendChild(card);
+      });
+    }
+
+    // Eseguito all'avvio
+    renderPlayers();
+  </script>
+</body>
+</html>
