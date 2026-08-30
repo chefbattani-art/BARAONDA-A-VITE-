@@ -8,72 +8,80 @@ import re
 st.set_page_config(
     page_title="Biliardino League - Champions Edition",
     page_icon="⭐",
-    layout="centered",
+    layout="wide", # Layout largo per valorizzare al massimo la classifica completa
     initial_sidebar_state="expanded",
 )
 
-# --- STILE GRAFICO CHAMPIONS & EUROPA LEAGUE ---
+# --- STILE GRAFICO CHAMPIONS LEAGUE PREMIUM & IMMERSIVO ---
 st.markdown("""
     <style>
     .stApp {
-        background-color: #02091d !important;
-        background-image: 
-            radial-gradient(circle at 50% 20%, rgba(29, 78, 216, 0.35) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(30, 58, 138, 0.4) 0%, transparent 60%),
-            url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M50 12c-5.5 0-10 4.5-10 10 0 3.8 2.2 7.1 5.5 8.7L41 55h-8c-2.8 0-5 2.2-5 5v12c0 2.8 2.2 5 5 5h4l2 18c.2 1.8 1.7 3 3.5 3h11c1.8 0 3.3-1.2 3.5-3l2-18h4c2.8 0 5-2.2 5-5V60c0-2.8-2.2-5-5-5h-8l-4.5-24.3C57.8 19.1 60 15.8 60 12c0-5.5-4.5-10-10-10z'/%3E%3C/g%3E%3C/svg%3E") !important;
-        background-attachment: fixed !important;
-        color: #f8fafc !important;
-        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+        background: radial-gradient(circle at 50% 10%, #03071e 0%, #02091d 40%, #000208 100%) !important;
+        color: #f1f5f9 !important;
+        font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
     }
     
     .main { background: transparent !important; }
 
+    /* Header ufficiale stile Champions */
     .champions-header {
-        background: linear-gradient(135deg, #0b132b, #1c2541, #3a506b);
+        background: linear-gradient(135deg, #020617 0%, #1e3a8a 50%, #020617 100%);
         border: 2px solid #3b82f6;
-        border-radius: 16px;
-        padding: 20px;
+        border-radius: 20px;
+        padding: 25px;
         text-align: center;
         color: #ffffff;
-        font-size: 1.5em;
+        font-size: 1.8em;
         font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 20px;
-        box-shadow: 0 0 35px rgba(59, 130, 246, 0.5);
+        letter-spacing: 3px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
     }
 
+    /* Box riepilogo coppia dinamico */
     .coppia-box {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.85));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
         border: 2px solid #60a5fa;
-        border-radius: 14px;
-        padding: 18px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
     }
 
+    /* Card contenuti moderni */
     .cyber-card {
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 14px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-        backdrop-filter: blur(10px);
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+        backdrop-filter: blur(12px);
     }
 
+    /* Bottoni stile Champions */
     div.stButton > button {
-        border-radius: 10px;
+        border-radius: 12px;
         font-weight: 800;
-        border: 1px solid #60a5fa;
-        background: linear-gradient(135deg, #2563eb, #1e40af);
+        border: 1px solid #93c5fd;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8, #1e3a8a);
         color: #ffffff;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.5);
         width: 100% !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px;
     }
     div.stButton > button:hover {
-        background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
-        border-color: #93c5fd;
+        background: linear-gradient(135deg, #1d4ed8, #1e40af, #1e3a8a);
+        border-color: #ffffff;
+        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.8);
+    }
+    
+    /* Personalizzazione tabelle Streamlit */
+    dataframe, table {
+        width: 100% !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -118,17 +126,16 @@ else:
 
 st.markdown("""
     <div class="champions-header">
-        ⭐ BILIARDINO LEAGUE - CHAMPIONS EDITION ⭐
+        ⭐ BILIARDINO LEAGUE - THE CHAMPIONS ⭐
     </div>
 """, unsafe_allow_html=True)
 
-# --- RIEPILOGO COPPIA SEMPRE IN ALTO (SE IL TORNEO È PARTITO) ---
+# --- RIEPILOGO COPPIA SEMPRE IN ALTO (SLIDE DEDICATO) ---
 if db["stato"] in ["league", "playoffs"] and db["coppie"]:
-    st.markdown("### 🔍 Seleziona la tua Coppia per il Riepilogo")
-    coppia_selezionata = st.selectbox("Scegli coppia:", db["coppie"], label_visibility="collapsed")
+    st.markdown("### 🔍 CRUSCOTTO PERSONALE COPPIA")
+    coppia_selezionata = st.selectbox("Seleziona la tua coppia per visualizzare lo stato:", db["coppie"], label_visibility="collapsed")
     
     if coppia_selezionata:
-        # Calcolo classifica ordinata per determinare posizione esatta e mini-classifica
         classifica_sort = sorted(
             db["classifica"].items(),
             key=lambda x: (x[1]["punti"], x[1]["dr"], x[1]["gf"]),
@@ -138,33 +145,34 @@ if db["stato"] in ["league", "playoffs"] and db["coppie"]:
         pos_attuale = squadre_ordinate.index(coppia_selezionata) + 1
         dati_coppia = db["classifica"][coppia_selezionata]
         
-        # Determinazione zona competizione
         if pos_attuale <= 24:
-            zona_testo = "🏆 Zona Champions (Top 24)"
+            zona_testo = "⭐ Zona Champions League (Top 24)"
+            badge_color = "#3b82f6"
         else:
-            zona_testo = "🥈 Zona Europa League (Dalla 25ª in giù)"
+            zona_testo = "🟠 Zona Europa League (Dalla 25ª in giù)"
+            badge_color = "#f97316"
 
         st.markdown(f"""
             <div class="coppia-box">
-                <h3 style="margin:0; color:#60a5fa;">⭐ RIEPILOGO COPPIA: {coppia_selezionata}</h3>
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 10px 0;">
-                <p><b>Posizione in Classifica:</b> {pos_attuale}° ({zona_testo})</p>
-                <p><b>Punteggio:</b> {dati_coppia['punti']} punti | <b>Partite Giocate:</b> {dati_coppia['partite_giocate']} | <b>Differenza Reti:</b> {dati_coppia['dr']:+d} (GF: {dati_coppia['gf']} | GS: {dati_coppia['gs']})</p>
+                <h3 style="margin:0; color:#93c5fd; font-weight:900; letter-spacing:1px;">⭐ {coppia_selezionata}</h3>
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 12px 0;">
+                <p style="font-size: 1.1em; margin-bottom: 8px;"><b>Posizione Attuale:</b> <span style="color: {badge_color}; font-weight: bold;">{pos_attuale}° posto</span> ({zona_testo})</p>
+                <p style="margin:0;"><b>Punti:</b> {dati_coppia['punti']} | <b>Partite Giocate:</b> {dati_coppia['partite_giocate']} | <b>Differenza Reti:</b> {dati_coppia['dr']:+d} (GF: {dati_coppia['gf']} | GS: {dati_coppia['gs']})</p>
             </div>
         """, unsafe_allow_html=True)
 
-        # Mini classifica attorno alla coppia (es. 2 sopra, la coppia, 2 sotto)
+        # Mini classifica di riferimento attorno alla coppia
         idx_coppia = squadre_ordinate.index(coppia_selezionata)
         inizio = max(0, idx_coppia - 2)
         fine = min(len(squadre_ordinate), idx_coppia + 3)
         mini_list = squadre_ordinate[inizio:fine]
         
-        st.markdown("#### 📊 Mini Classifica (Area di Riferimento)")
+        st.markdown("#### 📊 Riferimento di Classifica Diretto")
         mini_data = []
         for cp in mini_list:
             p = squadre_ordinate.index(cp) + 1
             st_val = db["classifica"][cp]
-            evidenzia = " 👉 [TU]" if cp == coppia_selezionata else ""
+            evidenzia = " 👉 [LA TUA COPPIA]" if cp == coppia_selezionata else ""
             mini_data.append({
                 "Pos": f"{p}°",
                 "Coppia": cp + evidenzia,
@@ -173,14 +181,14 @@ if db["stato"] in ["league", "playoffs"] and db["coppie"]:
             })
         st.dataframe(pd.DataFrame(mini_data), use_container_width=True, hide_index=True)
 
-        # Partite della coppia (In coda / In corso / Disputate)
+        # Partite della coppia (In coda / Disputate)
         partite_coppia = [m for m in db["calendario"] if m["c1"] == coppia_selezionata or m["c2"] == coppia_selezionata]
         partite_in_attesa = [m for m in partite_coppia if not m["giocata"]]
         partite_disputate = [m for m in partite_coppia if m["giocata"]]
 
         col_p1, col_p2 = st.columns(2)
         with col_p1:
-            st.markdown(f"#### ⏳ Partite da Fare / In Coda ({len(partite_in_attesa)})")
+            st.markdown(f"#### ⏳ Partite in Coda / Da Fare ({len(partite_in_attesa)})")
             if not partite_in_attesa:
                 st.info("Nessuna partita in coda!")
             else:
@@ -297,11 +305,11 @@ if db["stato"] == "setup":
             st.success("Calendario e Girone Unico generati con successo!")
             st.rerun()
 
-# --- FASE 2: LEAGUE PHASE (GIRONE UNICO CON COLORAZIONE CHAMPIONS/EUROPA) ---
+# --- FASE 2: LEAGUE PHASE (GIRONE UNICO COMPLETO ED ESPANSO) ---
 elif db["stato"] == "league":
     st.markdown("""
         <div class="champions-header">
-            🏆 LEAGUE PHASE - GIRONE UNICO
+            🏆 LEAGUE PHASE - GIRONE UNICO UFFICIALE
         </div>
     """, unsafe_allow_html=True)
 
@@ -310,8 +318,8 @@ elif db["stato"] == "league":
             <b>Regolamento Punteggio Scarti:</b><br>
             • <b>Vittoria con 2+ gol di scarto:</b> 3 punti alla vincente, 0 alla perdente.<br>
             • <b>Vittoria di misura (1 gol di scarto):</b> 2 punti alla vincente, 1 punto alla perdente.<br>
-            • <span style="color:#60a5fa;"><b>Prime 24 in classifica:</b></span> Area Champions League.<br>
-            • <span style="color:#f97316;"><b>Dalla 25ª in giù:</b></span> Area Europa League.
+            • <span style="color:#60a5fa;"><b>Prime 24 in classifica:</b></span> Accesso diretto a Champions League (evidenziate in blu stellato).<br>
+            • <span style="color:#f97316;"><b>Dalla 25ª in giù:</b></span> Accesso a Europa League (evidenziate in arancione).
         </div>
     """, unsafe_allow_html=True)
 
@@ -321,15 +329,14 @@ elif db["stato"] == "league":
         reverse=True
     )
 
-    st.markdown("### 📊 Classifica Ufficiale Girone Unico")
+    st.markdown("### 📊 CLASSIFICA GENERALE COMPLETA")
     
-    # Funzione di stile personalizzata per colorare le righe del dataframe (Champions vs Europa)
     def colora_posizioni(row):
         idx = row.name
         if idx < 24:
-            return ['background-color: rgba(29, 78, 216, 0.25); color: #ffffff'] * len(row)
+            return ['background-color: rgba(29, 78, 216, 0.35); color: #ffffff; font-weight: 500;'] * len(row)
         else:
-            return ['background-color: rgba(154, 52, 18, 0.25); color: #ffedd5'] * len(row)
+            return ['background-color: rgba(154, 52, 18, 0.35); color: #ffedd5; font-weight: 500;'] * len(row)
 
     data_tabella = []
     for idx, (cp, st_vals) in enumerate(classifica_sort, 1):
@@ -339,12 +346,17 @@ elif db["stato"] == "league":
             "Squadra": cp,
             "Pt": st_vals["punti"],
             "G": st_vals["partite_giocate"],
+            "GF": st_vals["gf"],
+            "GS": st_vals["gs"],
             "DR": f"{st_vals['dr']:+d}",
             "Fascia": fascia
         })
     
     df_c = pd.DataFrame(data_tabella)
-    st.dataframe(df_c.style.apply(colora_posizioni, axis=1), use_container_width=True, hide_index=True)
+    
+    # Altezza dinamica per mostrare l'intera classifica comodamente senza dover fare continui scroll microscopici
+    altezza_tabella = min(800, max(250, len(df_c) * 38 + 40))
+    st.dataframe(df_c.style.apply(colora_posizioni, axis=1), use_container_width=True, height=altezza_tabella, hide_index=True)
 
     st.markdown("---")
     st.markdown("### ⚽ Incontri della League Phase")
