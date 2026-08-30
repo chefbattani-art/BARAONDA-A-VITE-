@@ -200,8 +200,7 @@ if db["stato"] == "setup":
             st.rerun()
 
 elif db["stato"] == "league":
-    # Layout a due colonne stile dashboard televisiva
-    col_ sinistra, col_destra = st.columns([1.3, 0.9])
+    col_sinistra, col_destra = st.columns([1.3, 0.9])
 
     with col_sinistra:
         st.markdown("### 📊 CLASSIFICA CHAMPIONS LEAGUE")
