@@ -6,12 +6,16 @@ import os
 
 st.set_page_config(page_title="Biliardino League - Champions & Europa", page_icon="⭐", layout="centered")
 
-# --- STILE GRAFICO CHAMPIONS LEAGUE (BLU NOTTE STELLATO & GLOW) ---
+# --- STILE GRAFICO CON PATTERN STELLE CHAMPIONS LEAGUE ---
 st.markdown("""
     <style>
-    /* Sfondo generale con gradiente blu notte Champions e stelle simulate in CSS */
+    /* Sfondo blu notte con texture a tema Champions League (stelle stilizzate ripetute) */
     .stApp {
-        background: radial-gradient(circle at 50% 20%, #1e3a8a 0%, #0b132b 40%, #030712 100%) !important;
+        background-color: #02091d !important;
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(29, 78, 216, 0.4) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(30, 58, 138, 0.5) 0%, transparent 50%),
+            url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M60 10l12 25h27l-22 16 8 26-25-17-25 17 8-26-22-16h27z'/%3E%3C/g%3E%3C/svg%3E") !important;
         background-attachment: fixed !important;
         color: #ffffff !important;
     }
@@ -21,7 +25,7 @@ st.markdown("""
     }
     
     .champions-banner {
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(15, 23, 42, 0.95));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 58, 138, 0.95));
         border: 2px solid #3b82f6;
         border-radius: 16px;
         padding: 18px;
@@ -32,12 +36,12 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 2px;
         margin-bottom: 20px;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
     }
 
     .europa-banner {
-        background: linear-gradient(135deg, rgba(124, 45, 18, 0.9), rgba(15, 23, 42, 0.95));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(124, 45, 18, 0.95));
         border: 2px solid #f97316;
         border-radius: 16px;
         padding: 18px;
@@ -48,12 +52,12 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 2px;
         margin-bottom: 20px;
-        box-shadow: 0 0 25px rgba(249, 115, 22, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 30px rgba(249, 115, 22, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
     }
 
     .section-header-cl {
-        background: linear-gradient(90deg, #1d4ed8 0%, rgba(30, 58, 138, 0.2) 100%);
+        background: linear-gradient(90deg, #1d4ed8 0%, rgba(15, 23, 42, 0.8) 100%);
         border-left: 6px solid #60a5fa;
         padding: 12px 16px;
         border-radius: 10px;
@@ -63,11 +67,11 @@ st.markdown("""
         margin-top: 25px;
         margin-bottom: 12px;
         letter-spacing: 1.5px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
 
     .section-header-el {
-        background: linear-gradient(90deg, #c2410c 0%, rgba(124, 45, 18, 0.2) 100%);
+        background: linear-gradient(90deg, #c2410c 0%, rgba(15, 23, 42, 0.8) 100%);
         border-left: 6px solid #fb923c;
         padding: 12px 16px;
         border-radius: 10px;
@@ -77,20 +81,19 @@ st.markdown("""
         margin-top: 25px;
         margin-bottom: 12px;
         letter-spacing: 1.5px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
 
     .match-card {
-        background: rgba(15, 23, 42, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 15px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        backdrop-filter: blur(10px);
     }
 
-    /* Stile pulsanti stile Champions */
     .stButton > button {
         width: 100% !important;
         background: linear-gradient(135deg, #2563eb, #1e40af) !important;
@@ -105,12 +108,7 @@ st.markdown("""
     .stButton > button:hover {
         background: linear-gradient(135deg, #1d4ed8, #1e3a8a) !important;
         border-color: #93c5fd !important;
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
-    }
-
-    /* Personalizzazione tabelle per integrarsi con lo sfondo scuro */
-    dataframe, table {
-        color: #ffffff !important;
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
     }
     </style>
 """, unsafe_allow_html=True)
