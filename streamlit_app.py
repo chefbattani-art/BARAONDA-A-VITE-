@@ -6,82 +6,76 @@ import os
 import re
 
 st.set_page_config(
-    page_title="Biliardino League - Champions Edition",
+    page_title="Biliardino Champions League",
     page_icon="⭐",
-    layout="wide", # Layout largo per valorizzare al massimo la classifica completa
+    layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# --- STILE GRAFICO CHAMPIONS LEAGUE PREMIUM & IMMERSIVO ---
+# --- STILE GRAFICO PREMIUM UEFA CHAMPIONS LEAGUE ---
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
+
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #03071e 0%, #02091d 40%, #000208 100%) !important;
-        color: #f1f5f9 !important;
-        font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
+        background: radial-gradient(circle at 50% 10%, #030a1c 0%, #01040f 50%, #000000 100%) !important;
+        color: #f8fafc !important;
+        font-family: 'Montserrat', sans-serif;
     }
     
     .main { background: transparent !important; }
 
-    /* Header ufficiale stile Champions */
-    .champions-header {
-        background: linear-gradient(135deg, #020617 0%, #1e3a8a 50%, #020617 100%);
-        border: 2px solid #3b82f6;
-        border-radius: 20px;
-        padding: 25px;
-        text-align: center;
-        color: #ffffff;
-        font-size: 1.8em;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 3px;
+    /* Header stile TV / Dashboard */
+    .champions-top-bar {
+        background: linear-gradient(135deg, #06112a 0%, #1d4ed8 50%, #050b18 100%);
+        border-bottom: 2px solid #3b82f6;
+        padding: 15px 25px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 25px;
-        box-shadow: 0 0 40px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
     }
 
-    /* Box riepilogo coppia dinamico */
-    .coppia-box {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
+    /* Card Box Standard stile Champions */
+    .cl-card {
+        background: linear-gradient(135deg, rgba(11, 19, 43, 0.9), rgba(15, 23, 42, 0.95));
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Box Partita in Corso (Evidenziato) */
+    .match-live-box {
+        background: linear-gradient(135deg, #0b1d3a 0%, #172554 100%);
         border: 2px solid #60a5fa;
         border-radius: 16px;
-        padding: 22px;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
-    }
-
-    /* Card contenuti moderni */
-    .cyber-card {
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid rgba(96, 165, 250, 0.3);
-        border-radius: 16px;
         padding: 20px;
-        margin-bottom: 16px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-        backdrop-filter: blur(12px);
+        text-align: center;
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+        margin-bottom: 20px;
     }
 
     /* Bottoni stile Champions */
     div.stButton > button {
-        border-radius: 12px;
+        border-radius: 10px;
         font-weight: 800;
         border: 1px solid #93c5fd;
-        background: linear-gradient(135deg, #2563eb, #1d4ed8, #1e3a8a);
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
         color: #ffffff;
-        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.5);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         width: 100% !important;
         text-transform: uppercase;
-        letter-spacing: 1px;
         padding: 10px;
+        letter-spacing: 1px;
     }
     div.stButton > button:hover {
-        background: linear-gradient(135deg, #1d4ed8, #1e40af, #1e3a8a);
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
         border-color: #ffffff;
-        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.8);
-    }
-    
-    /* Personalizzazione tabelle Streamlit */
-    dataframe, table {
-        width: 100% !important;
+        box-shadow: 0 0 20px rgba(96, 165, 250, 0.8);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -114,115 +108,32 @@ if "db" not in st.session_state:
 
 db = st.session_state.db
 
-# --- SIDEBAR & ADMIN ---
-st.sidebar.title("⚙️ Gestione Torneo")
+# --- SIDEBAR DI NAVIGAZIONE ---
+st.sidebar.markdown("### ⚙️ Pannello di Controllo")
 admin_pin_input = st.sidebar.text_input("PIN Amministratore", type="password")
 is_admin = (admin_pin_input == db["admin_pin"])
 
 if is_admin:
-    st.sidebar.success("Modo Admin Attivo 🔓")
+    st.sidebar.success("Modo Admin Sbloccato 🔓")
 else:
     st.sidebar.info("Inserisci il PIN 0000 per sbloccare la gestione.")
 
+# Top Bar stile Champions
 st.markdown("""
-    <div class="champions-header">
-        ⭐ BILIARDINO LEAGUE - THE CHAMPIONS ⭐
+    <div class="champions-top-bar">
+        <div><span style="color: #ef4444; font-weight: 900;">● LIVE</span> &nbsp; <b>BILIARDINO CHAMPIONS LEAGUE</b></div>
+        <div style="font-size: 0.9em; color: #93c5fd;">Stagione Ufficiale</div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- RIEPILOGO COPPIA SEMPRE IN ALTO (SLIDE DEDICATO) ---
-if db["stato"] in ["league", "playoffs"] and db["coppie"]:
-    st.markdown("### 🔍 CRUSCOTTO PERSONALE COPPIA")
-    coppia_selezionata = st.selectbox("Seleziona la tua coppia per visualizzare lo stato:", db["coppie"], label_visibility="collapsed")
-    
-    if coppia_selezionata:
-        classifica_sort = sorted(
-            db["classifica"].items(),
-            key=lambda x: (x[1]["punti"], x[1]["dr"], x[1]["gf"]),
-            reverse=True
-        )
-        squadre_ordinate = [item[0] for item in classifica_sort]
-        pos_attuale = squadre_ordinate.index(coppia_selezionata) + 1
-        dati_coppia = db["classifica"][coppia_selezionata]
-        
-        if pos_attuale <= 24:
-            zona_testo = "⭐ Zona Champions League (Top 24)"
-            badge_color = "#3b82f6"
-        else:
-            zona_testo = "🟠 Zona Europa League (Dalla 25ª in giù)"
-            badge_color = "#f97316"
-
-        st.markdown(f"""
-            <div class="coppia-box">
-                <h3 style="margin:0; color:#93c5fd; font-weight:900; letter-spacing:1px;">⭐ {coppia_selezionata}</h3>
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 12px 0;">
-                <p style="font-size: 1.1em; margin-bottom: 8px;"><b>Posizione Attuale:</b> <span style="color: {badge_color}; font-weight: bold;">{pos_attuale}° posto</span> ({zona_testo})</p>
-                <p style="margin:0;"><b>Punti:</b> {dati_coppia['punti']} | <b>Partite Giocate:</b> {dati_coppia['partite_giocate']} | <b>Differenza Reti:</b> {dati_coppia['dr']:+d} (GF: {dati_coppia['gf']} | GS: {dati_coppia['gs']})</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-        # Mini classifica di riferimento attorno alla coppia
-        idx_coppia = squadre_ordinate.index(coppia_selezionata)
-        inizio = max(0, idx_coppia - 2)
-        fine = min(len(squadre_ordinate), idx_coppia + 3)
-        mini_list = squadre_ordinate[inizio:fine]
-        
-        st.markdown("#### 📊 Riferimento di Classifica Diretto")
-        mini_data = []
-        for cp in mini_list:
-            p = squadre_ordinate.index(cp) + 1
-            st_val = db["classifica"][cp]
-            evidenzia = " 👉 [LA TUA COPPIA]" if cp == coppia_selezionata else ""
-            mini_data.append({
-                "Pos": f"{p}°",
-                "Coppia": cp + evidenzia,
-                "Pt": st_val["punti"],
-                "DR": f"{st_val['dr']:+d}"
-            })
-        st.dataframe(pd.DataFrame(mini_data), use_container_width=True, hide_index=True)
-
-        # Partite della coppia (In coda / Disputate)
-        partite_coppia = [m for m in db["calendario"] if m["c1"] == coppia_selezionata or m["c2"] == coppia_selezionata]
-        partite_in_attesa = [m for m in partite_coppia if not m["giocata"]]
-        partite_disputate = [m for m in partite_coppia if m["giocata"]]
-
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-            st.markdown(f"#### ⏳ Partite in Coda / Da Fare ({len(partite_in_attesa)})")
-            if not partite_in_attesa:
-                st.info("Nessuna partita in coda!")
-            else:
-                for m in partite_in_attesa:
-                    avversario = m["c2"] if m["c1"] == coppia_selezionata else m["c1"]
-                    st.markdown(f"- Contro: **{avversario}**")
-
-        with col_p2:
-            st.markdown(f"#### ✅ Partite Disputate ({len(partite_disputate)})")
-            if not partite_disputate:
-                st.info("Nessuna partita giocata.")
-            else:
-                for m in partite_disputate:
-                    avversario = m["c2"] if m["c1"] == coppia_selezionata else m["c1"]
-                    if m["c1"] == coppia_selezionata:
-                        miei_gol, suoi_gol = m["gol1"], m["gol2"]
-                    else:
-                        miei_gol, suoi_gol = m["gol2"], m["gol1"]
-                    
-                    esito = "🟢" if miei_gol > suoi_gol else ("🔴" if miei_gol < suoi_gol else "🟡")
-                    st.markdown(f"- {esito} vs **{avversario}**: **{miei_gol} - {suoi_gol}**")
-
-        st.markdown("---")
-
-# --- FASE 1: SETUP E ISCRIZIONI ---
+# --- GESTIONE SCHERMATA PRINCIPALE ---
 if db["stato"] == "setup":
-    st.markdown("### 📥 Registrazione Coppie")
-    st.markdown("Inserisci le coppie manualmente o incolla la lista da WhatsApp.")
-
+    st.markdown("### 📥 Registrazione Coppie (Fase Iniziale)")
     with st.form("form_registrazione"):
         c1 = st.text_input("Giocatore 1")
         c2 = st.text_input("Giocatore 2")
-        whatsapp_list = st.text_area("📋 Oppure incolla lista WhatsApp:")
-        partite_scelta = st.slider("Partite casuali per ogni coppia nella League Phase:", min_value=3, max_value=10, value=6)
+        whatsapp_list = st.text_area("📋 Oppure incolla lista da WhatsApp:")
+        partite_scelta = st.slider("Partite per coppia nella League Phase:", min_value=3, max_value=10, value=6)
         
         submit_reg = st.form_submit_button("Aggiungi Coppie 🚀")
         
@@ -245,35 +156,18 @@ if db["stato"] == "setup":
                                 meta = len(parole) // 2
                                 nuove.append(f"{' '.join(parole[:meta]).upper()} / {' '.join(parole[meta:]).upper()}")
 
-            aggiunte = 0
             for n in nuove:
                 if n not in db["coppie"]:
                     db["coppie"].append(n)
-                    aggiunte += 1
             
             db["partite_a_testa"] = partite_scelta
             salva_dati(db)
-            st.success(f"Aggiunte {aggiunte} coppie con successo!")
+            st.success("Coppie aggiunte correttamente!")
             st.rerun()
-
-    st.markdown("---")
-    st.markdown(f"### 📋 Elenco Coppie Iscritte ({len(db['coppie'])})")
-    if not db["coppie"]:
-        st.info("Nessuna coppia iscritta.")
-    else:
-        for idx, cp in enumerate(db["coppie"], 1):
-            col_i1, col_i2 = st.columns([0.85, 0.15])
-            with col_i1:
-                st.markdown(f"<div style='padding:8px; background:rgba(255,255,255,0.05); border-radius:8px; margin-bottom:5px;'><b>{idx}.</b> ⚽ {cp}</div>", unsafe_allow_html=True)
-            with col_i2:
-                if is_admin and st.button("🗑️", key=f"del_{idx}"):
-                    db["coppie"].remove(cp)
-                    salva_dati(db)
-                    st.rerun()
 
     if is_admin and len(db["coppie"]) >= 4:
         st.markdown("---")
-        if st.button("⚡ Avvia League Phase (Girone Unico)", type="primary"):
+        if st.button("⚡ Avvia League Phase", type="primary"):
             db["classifica"] = {cp: {"punti": 0, "gf": 0, "gs": 0, "dr": 0, "partite_giocate": 0} for cp in db["coppie"]}
             coppie_azz = db["coppie"].copy()
             calendario = []
@@ -302,184 +196,147 @@ if db["stato"] == "setup":
             db["calendario"] = calendario
             db["stato"] = "league"
             salva_dati(db)
-            st.success("Calendario e Girone Unico generati con successo!")
+            st.success("Girone avviato!")
             st.rerun()
 
-# --- FASE 2: LEAGUE PHASE (GIRONE UNICO COMPLETO ED ESPANSO) ---
 elif db["stato"] == "league":
-    st.markdown("""
-        <div class="champions-header">
-            🏆 LEAGUE PHASE - GIRONE UNICO UFFICIALE
-        </div>
-    """, unsafe_allow_html=True)
+    # Layout a due colonne stile dashboard televisiva
+    col_ sinistra, col_destra = st.columns([1.3, 0.9])
 
-    st.markdown("""
-        <div class="cyber-card">
-            <b>Regolamento Punteggio Scarti:</b><br>
-            • <b>Vittoria con 2+ gol di scarto:</b> 3 punti alla vincente, 0 alla perdente.<br>
-            • <b>Vittoria di misura (1 gol di scarto):</b> 2 punti alla vincente, 1 punto alla perdente.<br>
-            • <span style="color:#60a5fa;"><b>Prime 24 in classifica:</b></span> Accesso diretto a Champions League (evidenziate in blu stellato).<br>
-            • <span style="color:#f97316;"><b>Dalla 25ª in giù:</b></span> Accesso a Europa League (evidenziate in arancione).
-        </div>
-    """, unsafe_allow_html=True)
+    with col_sinistra:
+        st.markdown("### 📊 CLASSIFICA CHAMPIONS LEAGUE")
+        classifica_sort = sorted(
+            db["classifica"].items(),
+            key=lambda x: (x[1]["punti"], x[1]["dr"], x[1]["gf"]),
+            reverse=True
+        )
 
-    classifica_sort = sorted(
-        db["classifica"].items(),
-        key=lambda x: (x[1]["punti"], x[1]["dr"], x[1]["gf"]),
-        reverse=True
-    )
+        data_tabella = []
+        for idx, (cp, st_vals) in enumerate(classifica_sort, 1):
+            fascia = "⭐ Top 24" if idx <= 24 else "🟠 EL"
+            data_tabella.append({
+                "Pos": f"{idx}°",
+                "Squadra": cp,
+                "Pt": st_vals["punti"],
+                "G": st_vals["partite_giocate"],
+                "DR": f"{st_vals['dr']:+d}"
+            })
+        
+        st.dataframe(pd.DataFrame(data_tabella), use_container_width=True, height=520, hide_index=True)
 
-    st.markdown("### 📊 CLASSIFICA GENERALE COMPLETA")
-    
-    def colora_posizioni(row):
-        idx = row.name
-        if idx < 24:
-            return ['background-color: rgba(29, 78, 216, 0.35); color: #ffffff; font-weight: 500;'] * len(row)
-        else:
-            return ['background-color: rgba(154, 52, 18, 0.35); color: #ffedd5; font-weight: 500;'] * len(row)
+    with col_destra:
+        st.markdown("### 🔍 CRUSCOTTO COPPIA")
+        coppia_selezionata = st.selectbox("Seleziona la tua squadra:", db["coppie"])
+        
+        if coppia_selezionata:
+            squadre_ordinate = [item[0] for item in classifica_sort]
+            pos_attuale = squadre_ordinate.index(coppia_selezionata) + 1
+            dati_coppia = db["classifica"][coppia_selezionata]
+            
+            st.markdown(f"""
+                <div class="cl-card">
+                    <h4 style="margin:0; color:#60a5fa;">⭐ {coppia_selezionata}</h4>
+                    <hr style="border-color: rgba(255,255,255,0.1);">
+                    <p><b>Posizione:</b> <span style="color:#38bdf8;">{pos_attuale}° posto</span></p>
+                    <p><b>Punti:</b> {dati_coppia['punti']} | <b>Giocate:</b> {dati_coppia['partite_giocate']}</p>
+                    <p><b>Differenza Reti:</b> {dati_coppia['dr']:+d} (GF: {dati_coppia['gf']} | GS: {dati_coppia['gs']})</p>
+                </div>
+            """, unsafe_allow_html=True)
 
-    data_tabella = []
-    for idx, (cp, st_vals) in enumerate(classifica_sort, 1):
-        fascia = "⭐ Champions (Top 24)" if idx <= 24 else "🟠 Europa League"
-        data_tabella.append({
-            "Pos": f"{idx}°",
-            "Squadra": cp,
-            "Pt": st_vals["punti"],
-            "G": st_vals["partite_giocate"],
-            "GF": st_vals["gf"],
-            "GS": st_vals["gs"],
-            "DR": f"{st_vals['dr']:+d}",
-            "Fascia": fascia
-        })
-    
-    df_c = pd.DataFrame(data_tabella)
-    
-    # Altezza dinamica per mostrare l'intera classifica comodamente senza dover fare continui scroll microscopici
-    altezza_tabella = min(800, max(250, len(df_c) * 38 + 40))
-    st.dataframe(df_c.style.apply(colora_posizioni, axis=1), use_container_width=True, height=altezza_tabella, hide_index=True)
-
-    st.markdown("---")
-    st.markdown("### ⚽ Incontri della League Phase")
-
-    da_giocare = [m for m in db["calendario"] if not m["giocata"]]
-    giocate = [m for m in db["calendario"] if m["giocata"]]
-
-    tab_da_giocare, tab_giocate = st.tabs([f"In Attesa ({len(da_giocare)})", f"Completate ({len(giocate)})"])
-
-    with tab_da_giocare:
+        st.markdown("### ⚽ PARTITE DA GIOCARE")
+        da_giocare = [m for m in db["calendario"] if not m["giocata"]]
+        
         if not da_giocare:
-            st.info("Tutte le partite del girone unico sono state completate!")
+            st.info("Nessuna partita in coda.")
         else:
-            for m in da_giocare:
-                with st.container(border=True):
-                    st.markdown(f"**🤝 {m['c1']}** vs **🤝 {m['c2']}**")
-                    if is_admin:
-                        col_g1, col_g2 = st.columns(2)
-                        with col_g1:
-                            gol_a = st.number_input(f"Gol {m['c1']}", min_value=0, max_value=20, value=0, key=f"ga_{m['id']}")
-                        with col_g2:
-                            gol_b = st.number_input(f"Gol {m['c2']}", min_value=0, max_value=20, value=0, key=f"gb_{m['id']}")
+            m_corrente = da_giocare[0]
+            st.markdown(f"""
+                <div class="match-live-box">
+                    <div style="font-size: 0.9em; color: #93c5fd; margin-bottom: 5px;">PROSSIMA PARTITA IN CODA</div>
+                    <div style="font-size: 1.2em; font-weight: 800; color: #ffffff;">
+                        {m_corrente['c1']} <span style="color: #f59e0b;">VS</span> {m_corrente['c2']}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if is_admin:
+                with st.form(f"form_match_{m_corrente['id']}"):
+                    col_g1, col_g2 = st.columns(2)
+                    with col_g1:
+                        g1 = st.number_input(f"Gol {m_corrente['c1']}", 0, 20, 0, key=f"g1_{m_corrente['id']}")
+                    with col_g2:
+                        g2 = st.number_input(f"Gol {m_corrente['c2']}", 0, 20, 0, key=f"g2_{m_corrente['id']}")
+                    
+                    if st.form_submit_button("Registra Risultato ⚡"):
+                        m_corrente["gol1"] = int(g1)
+                        m_corrente["gol2"] = int(g2)
+                        m_corrente["giocata"] = True
                         
-                        if st.button(f"Registra Risultato {m['id']}", key=f"btn_{m['id']}"):
-                            m["gol1"] = int(gol_a)
-                            m["gol2"] = int(gol_b)
-                            m["giocata"] = True
-                            
-                            diff = abs(gol_a - gol_b)
-                            if gol_a > gol_b:
-                                vincitrice, perdente = m["c1"], m["c2"]
-                                g_vin, g_per = gol_a, gol_b
-                            elif gol_b > gol_a:
-                                vincitrice, perdente = m["c2"], m["c1"]
-                                g_vin, g_per = gol_b, gol_a
-                            else:
-                                vincitrice, perdente = m["c1"], m["c2"]
-                                diff = 1
-                                g_vin, g_per = gol_a, gol_b
+                        diff = abs(g1 - g2)
+                        if g1 > g2:
+                            vin, per = m_corrente["c1"], m_corrente["c2"]
+                            gv, gp = g1, g2
+                        elif g2 > g1:
+                            vin, per = m_corrente["c2"], m_corrente["c1"]
+                            gv, gp = g2, g1
+                        else:
+                            vin, per = m_corrente["c1"], m_corrente["c2"]
+                            diff, gv, gp = 1, g1, g2
 
-                            pt_vin = 3 if diff >= 2 else 2
-                            pt_per = 0 if diff >= 2 else 1
+                        pt_v = 3 if diff >= 2 else 2
+                        pt_p = 0 if diff >= 2 else 1
 
-                            db["classifica"][vincitrice]["punti"] += pt_vin
-                            db["classifica"][vincitrice]["gf"] += g_vin
-                            db["classifica"][vincitrice]["gs"] += g_per
-                            db["classifica"][vincitrice]["dr"] += (g_vin - g_per)
-                            db["classifica"][vincitrice]["partite_giocate"] += 1
+                        db["classifica"][vin]["punti"] += pt_v
+                        db["classifica"][vin]["gf"] += gv
+                        db["classifica"][vin]["gs"] += gp
+                        db["classifica"][vin]["dr"] += (gv - gp)
+                        db["classifica"][vin]["partite_giocate"] += 1
 
-                            db["classifica"][perdente]["punti"] += pt_per
-                            db["classifica"][perdente]["gf"] += g_per
-                            db["classifica"][perdente]["gs"] += g_vin
-                            db["classifica"][perdente]["dr"] += (g_per - g_vin)
-                            db["classifica"][perdente]["partite_giocate"] += 1
+                        db["classifica"][per]["punti"] += pt_p
+                        db["classifica"][per]["gf"] += gp
+                        db["classifica"][per]["gs"] += gv
+                        db["classifica"][per]["dr"] += (gp - gv)
+                        db["classifica"][per]["partite_giocate"] += 1
 
-                            salva_dati(db)
-                            st.success("Risultato salvato e classifica aggiornata!")
-                            st.rerun()
-
-    with tab_giocate:
-        if not giocate:
-            st.text("Nessuna partita ancora conclusa.")
-        else:
-            for m in giocate:
-                st.markdown(f"✅ **{m['c1']}** {m['gol1']} - {m['gol2']} **{m['c2']}**")
+                        salva_dati(db)
+                        st.success("Risultato registrato con successo!")
+                        st.rerun()
 
     if is_admin:
         st.markdown("---")
-        if st.button("🌟 Genera Tabelloni Finali (Champions & Europa League)", type="primary"):
+        if st.button("🌟 Passa alla Fase a Eliminazione Diretta (Play-off)", type="primary"):
             db["stato"] = "playoffs"
             salva_dati(db)
-            st.success("Passaggio alla fase a eliminazione diretta completato!")
             st.rerun()
 
-# --- FASE 3: TABELLONI FINALI ---
 elif db["stato"] == "playoffs":
     st.markdown("""
-        <div class="champions-header">
-            ⭐ FASE A ELIMINAZIONE DIRETTA ⭐
+        <div style="background: linear-gradient(135deg, #0b132b, #1d4ed8); padding: 20px; border-radius: 14px; text-align: center; border: 2px solid #60a5fa; margin-bottom: 25px;">
+            <h2 style="margin:0; color:#ffffff;">⭐ TABELLONE FASE FINALE ⭐</h2>
         </div>
     """, unsafe_allow_html=True)
-
+    
     classifica_sort = sorted(
         db["classifica"].items(),
         key=lambda x: (x[1]["punti"], x[1]["dr"], x[1]["gf"]),
         reverse=True
     )
+    squadre = [item[0] for item in classifica_sort]
     
-    squadre_ordinate = [item[0] for item in classifica_sort]
-    champions_teams = squadre_ordinate[:24] 
-    europa_teams = squadre_ordinate[24:]   
-
-    tab_cl, tab_el = st.tabs(["🏆 Biliardino League (Champions)", "🥈 Biliardino League 2 (Europa League)"])
-
-    with tab_cl:
-        st.markdown("### 🏆 Tabellone Biliardino League")
-        st.markdown("- **Top 8:** Qualificate direttamente agli Ottavi di Finale.")
-        st.markdown("- **Dal 9° al 24° posto:** Spareggi preliminari a eliminazione diretta.")
-        
-        st.markdown("#### 🔹 Qualificate direttamente agli Ottavi (1° - 8°):")
-        for i in range(min(8, len(champions_teams))):
-            st.markdown(f"**{i+1}° posto:** {champions_teams[i]}")
-
-        st.markdown("#### 🔹 Spareggi Play-off (9° - 24°):")
-        spareggi = champions_teams[8:24]
-        for i in range(0, len(spareggi), 2):
-            s1 = spareggi[i]
-            s2 = spareggi[i+1] if i+1 < len(spareggi) else "BYE"
-            st.markdown(f"⚡ Spareggio: **{s1}** vs **{s2}**")
-
-    with tab_el:
-        st.markdown("### 🥈 Tabellone Biliardino League 2 (Europa League)")
-        if not europa_teams:
-            st.info("Nessuna squadra qualificata in Europa League (meno di 25 partecipanti totali).")
-        else:
-            for i in range(0, len(europa_teams), 2):
-                s1 = europa_teams[i]
-                s2 = europa_teams[i+1] if i+1 < len(europa_teams) else "RIPOSO"
-                st.markdown(f"⚔️ Scontro EL: **{s1}** vs **{s2}**")
+    st.markdown("#### 🏆 Scontro diretto e griglia finale pronta per i match decisivi.")
+    for i in range(0, min(len(squadre), 16), 2):
+        s1 = squadre[i] if i < len(squadre) else "TBD"
+        s2 = squadre[i+1] if i+1 < len(squadre) else "TBD"
+        st.markdown(f"""
+            <div class="cl-card" style="padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <b>Match {i//1+1}</b>
+                <span style="color: #60a5fa; font-weight: 800;">{s1} vs {s2}</span>
+                <span style="font-size: 0.8em; color: #94a3b8;">Fase a Eliminazione</span>
+            </div>
+        """, unsafe_allow_html=True)
 
     if is_admin:
-        st.markdown("---")
-        if st.button("🔄 Reset Totale Torneo"):
+        if st.button("🔄 Reset Torneo"):
             if os.path.exists(DB_FILE):
                 os.remove(DB_FILE)
             st.session_state.clear()
